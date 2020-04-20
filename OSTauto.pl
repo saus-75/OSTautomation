@@ -6,20 +6,14 @@ open U, "wget -q -O- $url|";
 
 if (U ne " "){
     while ($line = <U>){
-        if ($line =~ m/\.mp3<\/a>/ig){
-            $line =~ s/<td>//g;
-            $line =~ s/^[\t]*//g;
-            $line =~ s/<a href="//g;
-            $line =~ s/">.*//g;
-            #print "Wgetting this site $line";
-            open V, "wget -q -O- $line|";
+        if ($line =~ m/<td class=\"playlistDownloadSong\"><a href="(.*\.mp3)\">.*<\/a>/ig){
+            $link = "https://downloads.khinsider.com/$1";
+            open V, "wget -q -O- $link|";
             if (V ne " "){
                 while ($dl = <V>){
-                    if ($dl =~ m/<audio id.*/ig){
-                        $dl =~ s/.*src="//g;
-                        $dl =~ s/" controls.*//g;
-                        system "wget $dl";
-                        print $dl;
+                    if ($dl =~ m/<audio id=\"audio\" .* src=\"(https:.*\.mp3)\" >/ig){
+                        print "Downloading... $1\n";
+                        system "wget $1";
                     }
                 }
             }
